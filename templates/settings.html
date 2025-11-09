@@ -1,0 +1,33 @@
+{% extends "base.html" %}
+{% block title %}Settings | Lab Management System{% endblock %}
+{% block content %}
+
+<div class="container mt-4">
+  <div class="card shadow-sm border-0">
+    <div class="card-header bg-secondary text-white">
+      <h5 class="mb-0"><i class="bi bi-gear"></i> Account Settings</h5>
+    </div>
+    <div class="card-body">
+      <form method="POST">
+        <div class="mb-3">
+          <label for="new_password" class="form-label fw-semibold">New Password</label>
+          <input type="password" class="form-control" id="new_password" name="new_password" placeholder="Enter new password" required>
+        </div>
+
+        <div class="mb-3">
+          <label for="confirm_password" class="form-label fw-semibold">Confirm Password</label>
+          <input type="password" class="form-control" id="confirm_password" name="confirm_password" placeholder="Confirm new password" required>
+        </div>
+
+        <button type="submit" class="btn btn-success">
+          <i class="bi bi-check-circle"></i> Update Password
+        </button>
+        <a href="{{ url_for('users.profile') }}" class="btn btn-outline-secondary ms-2">
+          <i class="bi bi-arrow-left"></i> Back
+        </a>
+      </form>
+    </div>
+  </div>
+</div>
+
+{% endblock %}

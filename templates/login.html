@@ -1,0 +1,49 @@
+{% extends "auth_base.html" %}
+{% block title %}Login | Lab Management System{% endblock %}
+{% block content %}
+
+<!-- Centered Login Container -->
+<div class="d-flex flex-column justify-content-center align-items-center min-vh-100"
+     style="background: linear-gradient(135deg, #e8f6f8, #ffffff); padding-top: 40px; padding-bottom: 40px;">
+  
+  <div class="card shadow-lg p-4 border-0 w-100" style="max-width: 460px; border-radius: 15px;">
+    <h3 class="text-center mb-3 text-primary fw-bold">
+      <i class="bi bi-person-circle"></i> User Login
+    </h3>
+    <p class="text-center text-muted mb-4">Access your laboratory management dashboard</p>
+
+    <form method="POST" action="">
+      {{ form.hidden_tag() }}
+
+      <div class="mb-3">
+        {{ form.username.label(class="form-label fw-semibold") }}
+        <div class="input-group">
+          <span class="input-group-text"><i class="bi bi-person-fill"></i></span>
+          {{ form.username(class="form-control", placeholder="Enter your username") }}
+        </div>
+      </div>
+
+      <div class="mb-3">
+        {{ form.password.label(class="form-label fw-semibold") }}
+        <div class="input-group">
+          <span class="input-group-text"><i class="bi bi-lock-fill"></i></span>
+          {{ form.password(class="form-control", placeholder="Enter your password") }}
+        </div>
+      </div>
+
+      <div class="d-grid mt-4">
+        {{ form.submit(class="btn btn-accent btn-lg") }}
+      </div>
+
+      <div class="text-center mt-3">
+        <small>Don't have an account?
+          <a href="{{ url_for('auth.register') }}" class="text-decoration-none fw-semibold text-primary">
+            Register here
+          </a>
+        </small>
+      </div>
+    </form>
+  </div>
+</div>
+
+{% endblock %}

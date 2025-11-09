@@ -1,0 +1,21 @@
+{% extends "base.html" %}
+{% block title %}Profile | Lab Management System{% endblock %}
+{% block content %}
+
+<div class="container mt-4">
+  <div class="card shadow-sm border-0">
+    <div class="card-header bg-primary text-white">
+      <h5 class="mb-0"><i class="bi bi-person-badge"></i> User Profile</h5>
+    </div>
+    <div class="card-body">
+      <p><strong>Username:</strong> {{ user.username }}</p>
+      <p><strong>Role:</strong> {{ user.role.name if user.role else "No role assigned" }}</p>
+      <p><strong>Account Created:</strong> {{ user.created_at.strftime('%Y-%m-%d') }}</p>
+      <a href="{{ url_for('users.settings') }}" class="btn btn-outline-primary btn-sm mt-3">
+        <i class="bi bi-gear"></i> Account Settings
+      </a>
+    </div>
+  </div>
+</div>
+
+{% endblock %}

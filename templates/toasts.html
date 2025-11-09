@@ -1,0 +1,36 @@
+<!-- Toast Notification Container -->
+<div aria-live="polite" aria-atomic="true" class="position-relative">
+  <div id="toast-container" class="toast-container position-fixed bottom-0 end-0 p-3" style="z-index: 1100;">
+    {% with messages = get_flashed_messages(with_categories=true) %}
+      {% if messages %}
+        {% for category, message in messages %}
+          <div class="toast align-items-center text-bg-light toast-{{ category }} border-0 mb-2 shadow" role="alert" aria-live="assertive" aria-atomic="true">
+            <div class="d-flex align-items-center p-2">
+              {% if category == 'success' %}
+                <i class="bi bi-check-circle-fill text-success fs-5 me-2"></i>
+              {% elif category == 'danger' %}
+                <i class="bi bi-x-circle-fill text-danger fs-5 me-2"></i>
+              {% elif category == 'warning' %}
+                <i class="bi bi-exclamation-triangle-fill text-warning fs-5 me-2"></i>
+              {% else %}
+                <i class="bi bi-info-circle-fill text-info fs-5 me-2"></i>
+              {% endif %}
+              <div class="toast-body">{{ message }}</div>
+              <button type="button" class="btn-close ms-auto me-2" data-bs-dismiss="toast" aria-label="Close"></button>
+            </div>
+          </div>
+        {% endfor %}
+      {% endif %}
+    {% endwith %}
+  </div>
+</div>
+
+<script>
+  document.addEventListener('DOMContentLoaded', function () {
+    const toastElList = [].slice.call(document.querySelectorAll('.toast'));
+    toastElList.forEach(toastEl => {
+      const toast = new bootstrap.Toast(toastEl, { delay: 4000 });
+      toast.show();
+    });
+  });
+</script>

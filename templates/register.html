@@ -1,0 +1,54 @@
+{% extends "auth_base.html" %}
+{% block title %}Register | Lab Management System{% endblock %}
+{% block content %}
+
+<div class="d-flex justify-content-center align-items-center" style="min-height: 90vh; background: linear-gradient(135deg, #f5fdfc, #ffffff);">
+  <div class="card shadow-lg p-4 border-0" style="width: 100%; max-width: 520px; border-radius: 15px;">
+    <h3 class="text-center mb-3 text-primary fw-bold">
+      <i class="bi bi-person-plus"></i> Create an Account
+    </h3>
+    <p class="text-center text-muted mb-4">Register to access laboratory operations and management tools</p>
+
+    <form method="POST" novalidate>
+      {{ form.hidden_tag() }}
+
+      <div class="mb-3">
+        {{ form.username.label(class="form-label fw-semibold") }}
+        <div class="input-group">
+          <span class="input-group-text"><i class="bi bi-person-fill"></i></span>
+          {{ form.username(class="form-control", placeholder="Choose a username") }}
+        </div>
+      </div>
+
+      <div class="mb-3">
+        {{ form.password.label(class="form-label fw-semibold") }}
+        <div class="input-group">
+          <span class="input-group-text"><i class="bi bi-lock-fill"></i></span>
+          {{ form.password(class="form-control", placeholder="Enter a secure password") }}
+        </div>
+      </div>
+
+      <div class="mb-3">
+        {{ form.confirm.label(class="form-label fw-semibold") }}
+        <div class="input-group">
+          <span class="input-group-text"><i class="bi bi-shield-check"></i></span>
+          {{ form.confirm(class="form-control", placeholder="Confirm password") }}
+        </div>
+      </div>
+
+      <div class="d-grid mt-4">
+        {{ form.submit(class="btn btn-accent btn-lg") }}
+      </div>
+
+      <div class="text-center mt-3">
+        <small>Already have an account?
+          <a href="{{ url_for('auth.login') }}" class="text-decoration-none fw-semibold text-primary">
+            Log in here
+          </a>
+        </small>
+      </div>
+    </form>
+  </div>
+</div>
+
+{% endblock %}

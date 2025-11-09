@@ -1,0 +1,42 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="container mt-4">
+  <h2>Edit Inventory Item</h2>
+  <form method="POST">
+    <div class="mb-3">
+      <label class="form-label">Item Name</label>
+      <input
+        type="text"
+        class="form-control"
+        name="item_name"
+        value="{{ item.item_name }}"
+        required
+      >
+    </div>
+
+    <div class="mb-3">
+      <label class="form-label">Quantity</label>
+      <input
+        type="number"
+        class="form-control"
+        name="quantity"
+        value="{{ item.quantity }}"
+        required
+      >
+    </div>
+
+    <div class="mb-3">
+      <label class="form-label">Description</label>
+      <textarea
+        class="form-control"
+        name="description"
+        rows="3"
+      >{{ item.description }}</textarea>
+    </div>
+
+    <button type="submit" class="btn btn-primary">Update Item</button>
+    <a href="{{ url_for('inventory.inventory') }}" class="btn btn-secondary">Cancel</a>
+  </form>
+</div>
+{% endblock %}
+

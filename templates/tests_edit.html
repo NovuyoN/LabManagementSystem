@@ -1,0 +1,58 @@
+{% extends "base.html" %}
+{% block title %}Edit Test Record | Lab Management System{% endblock %}
+{% block content %}
+
+<div class="container mt-4" style="max-width: 720px;">
+  <div class="card shadow-sm border-0 p-4">
+    <h3 class="mb-3 text-center text-primary">Edit Test Record</h3>
+    <form method="POST">
+      <div class="mb-3">
+        <label class="form-label fw-semibold">Patient Name</label>
+        <input
+          type="text"
+          class="form-control"
+          name="patient_name"
+          value="{{ test.patient_name }}"
+          required
+        >
+      </div>
+
+      <div class="mb-3">
+        <label class="form-label fw-semibold">Test Type</label>
+        <input
+          type="text"
+          class="form-control"
+          name="test_type"
+          value="{{ test.test_type }}"
+          required
+        >
+      </div>
+
+      <div class="mb-3">
+        <label class="form-label fw-semibold">Test Result</label>
+        <select name="test_result" class="form-select">
+          <option value="Pending" {% if test.test_result == 'Pending' %}selected{% endif %}>Pending</option>
+          <option value="In Progress" {% if test.test_result == 'In Progress' %}selected{% endif %}>In Progress</option>
+          <option value="Completed" {% if test.test_result == 'Completed' %}selected{% endif %}>Completed</option>
+        </select>
+      </div>
+
+      <div class="mb-3">
+        <label class="form-label fw-semibold">Test Date</label>
+        <input
+          type="date"
+          name="test_date"
+          class="form-control"
+          value="{{ test.test_date.strftime('%Y-%m-%d') if test.test_date else '' }}"
+        >
+      </div>
+
+      <div class="d-flex justify-content-between mt-4">
+        <button type="submit" class="btn btn-success">Save Changes</button>
+        <a href="{{ url_for('tests.view_tests') }}" class="btn btn-secondary">Cancel</a>
+      </div>
+    </form>
+  </div>
+</div>
+
+{% endblock %}

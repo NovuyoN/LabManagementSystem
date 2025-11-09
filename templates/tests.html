@@ -1,0 +1,136 @@
+{% extends "base.html" %}
+{% block title %}Patient Tests | Lab Management System{% endblock %}
+{% block content %}
+
+<div class="container mt-4">
+  <h2 class="mb-4 text-center text-primary">Patient Test Records</h2>
+
+  <!-- Add Test Form (for authorized roles) -->
+  {% if current_user.role.name in ["admin", "lab_manager", "technician", "receptionist"] %}
+  <div class="card shadow-sm border-0 mb-4">
+    <div class="card-body">
+      <h5 class="card-title mb-3 text-primary">Add New Test Record</h5>
+      <form method="POST" action="{{ url_for('tests.view_tests') }}">
+        <div class="row g-3">
+          <div class="col-md-3">
+            <input
+              type="text"
+              name="patient_name"
+              class="form-control"
+              placeholder="Patient Name"
+              required
+            >
+          </div>
+          <div class="col-md-3">
+            <input
+              type="text"
+              name="test_type"
+              class="form-control"
+              placeholder="Test Type"
+              required
+            >
+          </div>
+          <div class="col-md-2">
+            <select name="test_result" class="form-select">
+              <option value="Pending" selected>Pending</option>
+              <option value="In Progress">In Progress</option>
+              <option value="Completed">Completed</option>
+            </select>
+          </div>
+          <div class="col-md-2">
+            <input
+              type="date"
+              name="test_date"
+              class="form-control"
+              value="{{ now().strftime('%Y-%m-%d') }}"
+            >
+          </div>
+          <div class="col-md-2">
+            <button type="submit" class="btn btn-success w-100">Add Test</button>
+          </div>
+        </div>
+      </form>
+    </div>
+  </div>
+  {% endif %}
+
+  <!-- Search Form -->
+  <form method="GET" action="{{ url_for('tests.view_tests') }}" class="mb-4">
+    <div class="input-group">
+      <input
+        type="text"
+        name="search"
+        placeholder="Search by patient name..."
+        value="{{ request.args.get('search', '') }}"
+        class="form-control"
+      >
+      <button class="btn btn-outline-primary" type="submit">Search</button>
+      <a href="{{ url_for('tests.view_tests') }}" class="btn btn-outline-secondary">Reset</a>
+    </div>
+  </form>
+
+  <!-- Tests Table -->
+  <div class="card shadow-sm border-0">
+    <div class="card-body">
+      <h5 class="card-title mb-3 text-primary">All Patient Tests</h5>
+
+      {% if tests %}
+      <div class="table-responsive">
+        <table class="table table-striped table-hover align-middle">
+          <thead class="table-dark">
+            <tr>
+              <th>ID</th>
+              <th>Patient Name</th>
+              <th>Test Type</th>
+              <th>Result</th>
+              <th>Date</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for test in tests %}
+            <tr>
+              <td>{{ test.id }}</td>
+              <td>{{ test.patient_name }}</td>
+              <td>{{ test.test_type }}</td>
+              <td>
+                {% if test.test_result == "Pending" %}
+                  <span class="badge bg-warning text-dark">Pending</span>
+                {% elif test.test_result == "In Progress" %}
+                  <span class="badge bg-info text-dark">In Progress</span>
+                {% elif test.test_result == "Completed" %}
+                  <span class="badge bg-success">Completed</span>
+                {% else %}
+                  <span class="badge bg-secondary">{{ test.test_result }}</span>
+                {% endif %}
+              </td>
+              <td>{{ test.test_date.strftime('%Y-%m-%d') if test.test_date else 'N/A' }}</td>
+              <td>
+                <div class="d-flex gap-2">
+                  {% if current_user.role.name in ["admin", "lab_manager", "technician"] %}
+                  <a href="{{ url_for('tests.edit_test', test_id=test.id) }}" class="btn btn-sm btn-outline-warning">Edit</a>
+                  {% endif %}
+                  {% if current_user.role.name in ["admin", "lab_manager"] %}
+                  <form
+                    method="POST"
+                    action="{{ url_for('tests.delete_test', test_id=test.id) }}"
+                    onsubmit="return confirm('Are you sure you want to delete this test record?')"
+                    style="display:inline;"
+                  >
+                    <button type="submit" class="btn btn-sm btn-outline-danger">🗑 Delete</button>
+                  </form>
+                  {% endif %}
+                </div>
+              </td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+      {% else %}
+      <p class="text-muted text-center">No test records available.</p>
+      {% endif %}
+    </div>
+  </div>
+</div>
+{% endblock %}

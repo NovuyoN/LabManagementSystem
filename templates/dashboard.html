@@ -1,0 +1,147 @@
+{% extends "base.html" %}
+{% block title %}Dashboard | Lab Management System{% endblock %}
+{% block content %}
+
+<div class="container mt-5 animate-fade-in">
+
+  <!-- Welcome Header -->
+  <div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+      <h2 class="fw-bold text-primary">Welcome, {{ current_user.username }}</h2>
+      <p class="text-muted mb-0">
+        Role: 
+        <span class="badge 
+          {% if user_role == 'admin' %}bg-danger
+          {% elif user_role == 'lab_manager' %}bg-primary
+          {% elif user_role == 'technician' %}bg-success
+          {% elif user_role == 'receptionist' %}bg-info text-dark
+          {% else %}bg-secondary{% endif %}">
+          {{ user_role|capitalize }}
+        </span>
+      </p>
+    </div>
+    <a href="{{ url_for('auth.logout') }}" class="btn btn-outline-danger btn-sm">
+      <i class="bi bi-box-arrow-right"></i> Logout
+    </a>
+  </div>
+
+  <!-- Summary Cards -->
+  <div class="row g-4 mb-5">
+
+    {% if permissions["Users"] %}
+    <div class="col-md-4">
+      <div class="card shadow border-0 h-100 text-center hover-shadow">
+        <div class="card-body">
+          <i class="bi bi-people fs-1 text-primary mb-2"></i>
+          <h6 class="text-uppercase text-muted">Total Users</h6>
+          <h2 class="fw-bold text-primary">{{ total_users }}</h2>
+          <a href="{{ url_for('users.manage_users') }}" class="btn btn-outline-primary btn-sm mt-3">
+            <i class="bi bi-person-gear"></i> Manage Users
+          </a>
+        </div>
+      </div>
+    </div>
+    {% endif %}
+
+    {% if permissions["Patient Tests"] %}
+    <div class="col-md-4">
+      <div class="card shadow border-0 h-100 text-center hover-shadow">
+        <div class="card-body">
+          <i class="bi bi-clipboard2-pulse fs-1 text-success mb-2"></i>
+          <h6 class="text-uppercase text-muted">Total Tests</h6>
+          <h2 class="fw-bold text-success">{{ total_tests }}</h2>
+          <a href="{{ url_for('tests.view_tests') }}" class="btn btn-outline-success btn-sm mt-3">
+            <i class="bi bi-clipboard-check"></i> View Tests
+          </a>
+        </div>
+      </div>
+    </div>
+    {% endif %}
+
+    {% if permissions["Inventory"] %}
+    <div class="col-md-4">
+      <div class="card shadow border-0 h-100 text-center hover-shadow">
+        <div class="card-body">
+          <i class="bi bi-box-seam fs-1 text-warning mb-2"></i>
+          <h6 class="text-uppercase text-muted">Inventory Items</h6>
+          <h2 class="fw-bold text-warning">{{ total_inventory }}</h2>
+          <a href="{{ url_for('inventory.inventory') }}" class="btn btn-outline-warning btn-sm mt-3">
+            <i class="bi bi-eye"></i> View Inventory
+          </a>
+        </div>
+      </div>
+    </div>
+    {% endif %}
+  </div>
+
+  <!-- Recent Test Activity -->
+  <div>
+    <h4 class="fw-bold mb-3 text-secondary">
+      <i class="bi bi-activity"></i> Recent Test Activity
+    </h4>
+
+    {% if recent_tests %}
+    <div class="table-responsive">
+      <table class="table table-striped align-middle shadow-sm">
+        <thead class="table-primary">
+          <tr>
+            <th>Patient</th>
+            <th>Test Type</th>
+            <th>Status</th>
+            <th>Date</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for test in recent_tests %}
+          <tr>
+            <td>{{ test.patient_name }}</td>
+            <td>{{ test.test_type }}</td>
+            <td>
+              {% if test.test_result == "Pending" %}
+                <span class="badge bg-warning text-dark">Pending</span>
+              {% elif test.test_result == "In Progress" %}
+                <span class="badge bg-info text-dark">In Progress</span>
+              {% else %}
+                <span class="badge bg-success">Completed</span>
+              {% endif %}
+            </td>
+            <td>{{ test.test_date.strftime('%Y-%m-%d') if test.test_date else 'N/A' }}</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+    {% else %}
+    <div class="alert alert-light border text-muted">
+      No recent test activity available.
+    </div>
+    {% endif %}
+  </div>
+
+  <!-- Timestamp Footer -->
+  <div class="text-end text-muted small mt-4">
+    <i class="bi bi-clock-history"></i> Last updated: {{ now().strftime('%Y-%m-%d %H:%M:%S') }}
+  </div>
+
+</div>
+
+<!-- Custom CSS Enhancements -->
+<style>
+  .hover-shadow:hover {
+    transform: translateY(-4px);
+    transition: all 0.25s ease-in-out;
+    box-shadow: 0 0.75rem 1.25rem rgba(0, 0, 0, 0.15);
+  }
+  .animate-fade-in {
+    animation: fadeIn 0.6s ease-in-out;
+  }
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+</style>
+
+{% endblock %}
+
+
+
