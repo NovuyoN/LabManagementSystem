@@ -13,11 +13,12 @@ if env_path:
 else:
     print("Warning: .env file not found!")
 
+
 def create_app():
     print("DEBUG >>> entered create_app")
 
     # ------------------- Import models and blueprints -------------------
-    from models import db, bcrypt, User, Role, Permission, PatientTestRecord, InventoryItem
+    from models import db, bcrypt, User, Role, Permission, PatientTestRecord, InventoryItem, TestCategory
     from routes.auth import auth_bp
     from routes.inventory import inventory_bp
     from routes.users import users_bp
@@ -51,7 +52,7 @@ def create_app():
     login_manager = LoginManager()
     login_manager.init_app(app)
     login_manager.login_view = "auth.login"
-    login_manager.login_message_category = "warning"  # flash category when login required
+    login_manager.login_message_category = "warning"
 
     @login_manager.user_loader
     def load_user(user_id):
@@ -72,7 +73,6 @@ def create_app():
 
     @app.route("/")
     def home():
-        # If already logged in, skip the public landing page
         if current_user.is_authenticated:
             return redirect(url_for("dashboard"))
         return render_template("index.html")
@@ -80,7 +80,6 @@ def create_app():
     @app.route("/dashboard")
     @login_required
     def dashboard():
-        from models import User, PatientTestRecord, InventoryItem
         from sqlalchemy import desc
 
         permissions = {
@@ -121,14 +120,12 @@ def create_app():
         from models import Role, Permission
         from sqlalchemy.orm import load_only
 
-        # Ensure roles
         roles = ["admin", "lab_manager", "technician", "receptionist"]
         for role_name in roles:
             if not Role.query.filter_by(name=role_name).first():
                 db.session.add(Role(name=role_name))
         db.session.commit()
 
-        # Ensure permissions
         permissions = [
             "manage_users",
             "manage_inventory",
@@ -142,14 +139,12 @@ def create_app():
                 db.session.add(Permission(name=perm_name))
         db.session.commit()
 
-        # Map all permissions to admin
         admin_role = Role.query.filter_by(name="admin").first()
         all_perms = Permission.query.options(load_only(Permission.id)).all()
         for perm in all_perms:
             if perm not in admin_role.permissions:
                 admin_role.permissions.append(perm)
 
-        # Lab manager mappings
         lab_manager = Role.query.filter_by(name="lab_manager").first()
         if lab_manager:
             lm_perms = Permission.query.filter(
@@ -167,7 +162,6 @@ def create_app():
                 if p not in lab_manager.permissions:
                     lab_manager.permissions.append(p)
 
-        # Technician mappings
         technician = Role.query.filter_by(name="technician").first()
         if technician:
             tech_perms = Permission.query.filter(
@@ -179,7 +173,6 @@ def create_app():
                 if p not in technician.permissions:
                     technician.permissions.append(p)
 
-        # Receptionist mappings
         receptionist = Role.query.filter_by(name="receptionist").first()
         if receptionist:
             rec_perms = Permission.query.filter(
@@ -191,6 +184,33 @@ def create_app():
 
         db.session.commit()
         print("Roles, permissions, and mappings updated successfully.")
+
+    # ------------------- TEST CATEGORY SEEDING -------------------
+    def seed_test_categories():
+        """Automatically add default lab test categories if missing."""
+        from models import TestCategory
+
+        default_categories = [
+            "Liver Function Tests",
+            "Kidney Function Tests",
+            "Complete Blood Count (CBC)",
+            "Thyroid Function Tests",
+            "Blood Glucose Tests",
+            "Lipid Profile",
+            "Urinalysis",
+        ]
+
+        added_any = False
+        for name in default_categories:
+            if not TestCategory.query.filter_by(name=name).first():
+                db.session.add(TestCategory(name=name))
+                added_any = True
+
+        if added_any:
+            db.session.commit()
+            print("Default test categories added successfully.")
+        else:
+            print("Test categories already exist — skipping seeding.")
 
     # ------------------- DEFAULT ADMIN CREATION -------------------
     def ensure_admin_exists():
@@ -215,24 +235,33 @@ def create_app():
         else:
             print("Admin user already exists — skipping creation.")
 
-    # ------------------- Run setup on startup -------------------
+    # ------------------- STARTUP SETUP -------------------
     with app.app_context():
         seed_roles_permissions()
+        seed_test_categories()
         ensure_admin_exists()
+
+        # Create uploads folder if missing
+        upload_folder = os.path.join("static", "uploads", "requests")
+        os.makedirs(upload_folder, exist_ok=True)
+        print(f"Ensured upload folder exists at: {upload_folder}")
 
     print("DEBUG >>> Reached end of create_app")
     return app
+
 
 # ------------------- Debug Helper -------------------
 def print_routes(app):
     """Print all registered routes for debugging."""
     import urllib
+
     print("\n Registered routes:")
     for rule in sorted(app.url_map.iter_rules(), key=lambda r: r.endpoint):
         methods = ",".join(sorted(rule.methods))
         line = urllib.parse.unquote(f"{rule.endpoint:30s} {methods:20s} {rule}")
         print(line)
     print()
+
 
 # ------------------- Entry Point -------------------
 if __name__ == "__main__":
@@ -249,5 +278,6 @@ if __name__ == "__main__":
 
     print_routes(app)
     app.run(debug=True, use_reloader=False)
+
 
 
