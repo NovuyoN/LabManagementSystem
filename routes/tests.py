@@ -47,6 +47,9 @@ def view_tests():
                 PatientTestRecord.test_date.desc()
             ).all()
 
+        # ✅ Map verifier IDs to usernames for display in HTML
+        verifiers = {user.id: user.username for user in User.query.all()}
+
         # Add new test record
         if request.method == "POST":
             if not current_user.has_permission("add_patient_tests"):
@@ -66,14 +69,12 @@ def view_tests():
             file = request.files.get("request_form")
             file_path = None
             if file and allowed_file(file.filename):
-                # timestamp the filename to avoid collisions
                 base = secure_filename(file.filename)
                 name, ext = os.path.splitext(base)
                 ts = datetime.utcnow().strftime("%Y%m%d%H%M%S%f")
                 final_name = f"{name}_{ts}{ext}"
                 saved_path = os.path.join(UPLOAD_FOLDER, final_name)
                 file.save(saved_path)
-                # Save relative path (under /static/) for templates/route
                 file_path = os.path.join("uploads", "requests", final_name)
 
             if not patient_name or not test_type:
@@ -114,7 +115,7 @@ def view_tests():
         logger.exception("Error in view_tests: %s", e)
         flash("An error occurred while processing tests.", "danger")
 
-    return render_template("tests.html", tests=tests, categories=categories)
+    return render_template("tests.html", tests=tests, categories=categories, verifiers=verifiers)
 
 
 # ---------------- VERIFY TEST ---------------- #
@@ -254,12 +255,12 @@ def view_request_form(filename):
         return redirect(url_for("tests.view_tests"))
 
     try:
-        # Display in browser where possible (PDF/images) — change to as_attachment=True to force download
         return send_from_directory(uploads_dir, filename, as_attachment=False)
     except Exception as e:
         logger.exception("Error serving request form: %s", e)
         flash("Unable to open the requested file.", "danger")
         return redirect(url_for("tests.view_tests"))
+
 
 
 

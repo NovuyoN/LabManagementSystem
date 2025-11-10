@@ -11,7 +11,6 @@
     <div class="card-body">
       <h5 class="card-title mb-3 text-primary">Add New Test Record</h5>
 
-      <!-- enctype added for file uploads -->
       <form method="POST" action="{{ url_for('tests.view_tests') }}" enctype="multipart/form-data">
         <div class="row g-3 mb-3">
           <div class="col-md-3">
@@ -139,8 +138,7 @@
               <td>{{ test.user.username if test.user else '-' }}</td>
               <td>
                 {% if test.verified_by %}
-                  {% set verifier = User.query.get(test.verified_by) %}
-                  <span class="text-success">{{ verifier.username if verifier else 'Unknown' }}</span>
+                  <span class="text-success">{{ verifiers.get(test.verified_by, 'Unknown') }}</span>
                 {% else %}
                   <span class="text-muted">Not Verified</span>
                 {% endif %}
@@ -196,6 +194,7 @@
 </div>
 
 {% endblock %}
+
 
 
 
