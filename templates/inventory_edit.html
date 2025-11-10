@@ -1,42 +1,77 @@
 {% extends "base.html" %}
+{% block title %}Edit Inventory Item | Lab Management System{% endblock %}
 {% block content %}
-<div class="container mt-4">
-  <h2>Edit Inventory Item</h2>
-  <form method="POST">
-    <div class="mb-3">
-      <label class="form-label">Item Name</label>
-      <input
-        type="text"
-        class="form-control"
-        name="item_name"
-        value="{{ item.item_name }}"
-        required
-      >
-    </div>
 
-    <div class="mb-3">
-      <label class="form-label">Quantity</label>
-      <input
-        type="number"
-        class="form-control"
-        name="quantity"
-        value="{{ item.quantity }}"
-        required
-      >
-    </div>
+<div class="container mt-4" style="max-width: 720px;">
+  <div class="card shadow-sm border-0">
+    <div class="card-body">
+      <h3 class="mb-3 text-primary">
+        <i class="bi bi-box-seam"></i> Edit Inventory Item
+      </h3>
 
-    <div class="mb-3">
-      <label class="form-label">Description</label>
-      <textarea
-        class="form-control"
-        name="description"
-        rows="3"
-      >{{ item.description }}</textarea>
-    </div>
+      <!-- Current computed status -->
+      {% if status %}
+        <p>
+          Current Status:
+          {% if status == 'Expired' %}
+            <span class="badge bg-danger">{{ status }}</span>
+          {% elif status == 'Expiring Soon' %}
+            <span class="badge bg-warning text-dark">{{ status }}</span>
+          {% elif status == 'Out of Stock' %}
+            <span class="badge bg-secondary">{{ status }}</span>
+          {% elif status == 'Low Stock' %}
+            <span class="badge bg-info text-dark">{{ status }}</span>
+          {% else %}
+            <span class="badge bg-success">{{ status }}</span>
+          {% endif %}
+        </p>
+      {% endif %}
 
-    <button type="submit" class="btn btn-primary">Update Item</button>
-    <a href="{{ url_for('inventory.inventory') }}" class="btn btn-secondary">Cancel</a>
-  </form>
+      <form method="POST">
+        <div class="mb-3">
+          <label class="form-label fw-semibold">Item Name</label>
+          <input type="text" class="form-control" name="item_name" value="{{ item.item_name }}" required>
+        </div>
+
+        <div class="row">
+          <div class="col-md-6 mb-3">
+            <label class="form-label fw-semibold">Category</label>
+            <input type="text" class="form-control" name="category" value="{{ item.category or '' }}" placeholder="e.g., Reagent">
+          </div>
+          <div class="col-md-6 mb-3">
+            <label class="form-label fw-semibold">Unit</label>
+            <input type="text" class="form-control" name="unit" value="{{ item.unit or 'units' }}" placeholder="e.g., bottles, kits">
+          </div>
+        </div>
+
+        <div class="row">
+          <div class="col-md-4 mb-3">
+            <label class="form-label fw-semibold">Quantity</label>
+            <input type="number" class="form-control" name="quantity" min="0" value="{{ item.quantity or 0 }}" required>
+          </div>
+          <div class="col-md-4 mb-3">
+            <label class="form-label fw-semibold">Reorder Level (Min)</label>
+            <input type="number" class="form-control" name="min_threshold" min="0" value="{{ item.min_threshold or 0 }}">
+          </div>
+          <div class="col-md-4 mb-3">
+            <label class="form-label fw-semibold">Expiry Date</label>
+            <input type="date" class="form-control" name="expiry_date" value="{{ item.expiry_date.strftime('%Y-%m-%d') if item.expiry_date else '' }}">
+          </div>
+        </div>
+
+        <div class="d-flex justify-content-between mt-3">
+          <a href="{{ url_for('inventory.inventory') }}" class="btn btn-outline-secondary">
+            <i class="bi bi-arrow-left"></i> Back
+          </a>
+          <button type="submit" class="btn btn-success">
+            <i class="bi bi-check-circle"></i> Save Changes
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
 </div>
+
 {% endblock %}
+
 
