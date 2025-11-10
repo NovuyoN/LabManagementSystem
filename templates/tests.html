@@ -51,7 +51,6 @@
             <input type="text" name="hospital_name" class="form-control" placeholder="Hospital Name">
           </div>
           <div class="col-md-3">
-            <!-- Upload doctor request form -->
             <input type="file" name="request_form" class="form-control" accept=".pdf,.png,.jpg,.jpeg">
             <small class="text-muted">Attach doctor's request (PDF or image)</small>
           </div>
@@ -128,7 +127,11 @@
               <td>{{ test.hospital_name or '-' }}</td>
               <td>
                 {% if test.request_form_path %}
-                  <a href="{{ url_for('static', filename=test.request_form_path) }}" target="_blank" class="btn btn-sm btn-outline-primary">View File</a>
+                  <a href="{{ url_for('tests.view_request_form', filename=test.request_form_path.split('/')[-1]) }}"
+                     target="_blank"
+                     class="btn btn-sm btn-outline-primary">
+                    View Form
+                  </a>
                 {% else %}
                   <span class="text-muted">No File</span>
                 {% endif %}
@@ -154,7 +157,7 @@
                 {% endif %}
               </td>
               <td>
-                <div class="d-flex gap-2">
+                <div class="d-flex gap-2 flex-wrap">
                   {% if current_user.has_permission("edit_patient_tests") %}
                     <a href="{{ url_for('tests.edit_test', test_id=test.id) }}" class="btn btn-sm btn-outline-warning">✏ Edit</a>
                   {% endif %}
@@ -193,5 +196,6 @@
 </div>
 
 {% endblock %}
+
 
 

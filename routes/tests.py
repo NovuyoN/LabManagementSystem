@@ -2,7 +2,7 @@ import logging
 import os
 from datetime import datetime
 from werkzeug.utils import secure_filename
-from flask import Blueprint, render_template, request, redirect, url_for, flash
+from flask import Blueprint, render_template, request, redirect, url_for, flash, send_from_directory
 from flask_login import login_required, current_user
 from models import db, PatientTestRecord, TestCategory, User
 
@@ -62,15 +62,19 @@ def view_tests():
             doctor_email = request.form.get("doctor_email", "").strip()
             hospital_name = request.form.get("hospital_name", "").strip()
 
-            # Handle file upload
+            # Handle file upload (doctor request form)
             file = request.files.get("request_form")
             file_path = None
             if file and allowed_file(file.filename):
-                filename = secure_filename(file.filename)
-                saved_path = os.path.join(UPLOAD_FOLDER, filename)
+                # timestamp the filename to avoid collisions
+                base = secure_filename(file.filename)
+                name, ext = os.path.splitext(base)
+                ts = datetime.utcnow().strftime("%Y%m%d%H%M%S%f")
+                final_name = f"{name}_{ts}{ext}"
+                saved_path = os.path.join(UPLOAD_FOLDER, final_name)
                 file.save(saved_path)
-                # Save relative path for use in templates
-                file_path = os.path.join("uploads", "requests", filename)
+                # Save relative path (under /static/) for templates/route
+                file_path = os.path.join("uploads", "requests", final_name)
 
             if not patient_name or not test_type:
                 flash("Patient name and test type are required.", "warning")
@@ -235,6 +239,28 @@ def delete_test(test_id):
         flash("An error occurred while deleting the test record.", "danger")
 
     return redirect(url_for("tests.view_tests"))
+
+
+# ---------------- VIEW / DOWNLOAD REQUEST FORM ---------------- #
+@tests_bp.route("/tests/request-form/<path:filename>")
+@login_required
+def view_request_form(filename):
+    """Allow viewing or downloading uploaded doctor request forms."""
+    uploads_dir = os.path.join("static", "uploads", "requests")
+    file_path = os.path.join(uploads_dir, filename)
+
+    if not os.path.exists(file_path):
+        flash("Requested file not found.", "warning")
+        return redirect(url_for("tests.view_tests"))
+
+    try:
+        # Display in browser where possible (PDF/images) — change to as_attachment=True to force download
+        return send_from_directory(uploads_dir, filename, as_attachment=False)
+    except Exception as e:
+        logger.exception("Error serving request form: %s", e)
+        flash("Unable to open the requested file.", "danger")
+        return redirect(url_for("tests.view_tests"))
+
 
 
 

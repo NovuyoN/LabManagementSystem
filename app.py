@@ -23,6 +23,8 @@ def create_app():
     from routes.inventory import inventory_bp
     from routes.users import users_bp
     from routes.tests import tests_bp
+    from routes.categories import categories_bp   
+    from routes.reports import reports_bp
 
     print("DEBUG >>> models and blueprints imported")
 
@@ -63,6 +65,8 @@ def create_app():
     app.register_blueprint(users_bp)
     app.register_blueprint(inventory_bp)
     app.register_blueprint(tests_bp)
+    app.register_blueprint(categories_bp)   
+    app.register_blueprint(reports_bp)
 
     print("DEBUG >>> Blueprints registered")
 
@@ -188,8 +192,6 @@ def create_app():
     # ------------------- TEST CATEGORY SEEDING -------------------
     def seed_test_categories():
         """Automatically add default lab test categories if missing."""
-        from models import TestCategory
-
         default_categories = [
             "Liver Function Tests",
             "Kidney Function Tests",
@@ -241,7 +243,6 @@ def create_app():
         seed_test_categories()
         ensure_admin_exists()
 
-        # Create uploads folder if missing
         upload_folder = os.path.join("static", "uploads", "requests")
         os.makedirs(upload_folder, exist_ok=True)
         print(f"Ensured upload folder exists at: {upload_folder}")

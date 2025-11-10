@@ -1,4 +1,3 @@
-
 import logging
 from functools import wraps
 from flask import Blueprint, render_template, request, redirect, url_for, flash
@@ -7,8 +6,8 @@ from werkzeug.security import generate_password_hash
 from models import db, User, Role
 
 logger = logging.getLogger(__name__)
-
 users_bp = Blueprint("users", __name__, url_prefix="/users")
+
 
 # -------------------- PERMISSION GUARD -------------------- #
 def permission_required(permission_name):
@@ -32,20 +31,22 @@ def permission_required(permission_name):
 @login_required
 @permission_required("manage_users")
 def manage_users():
-    """View and create users."""
+    """View, search, and create users."""
     roles = Role.query.all()
+    search_query = request.args.get("search", "").strip().lower()
 
+    # Handle new user creation
     if request.method == "POST":
-        username = request.form.get("username").strip()
-        password = request.form.get("password")
-        role_name = request.form.get("role")
+        username = request.form.get("username", "").strip()
+        password = request.form.get("password", "")
+        role_name = request.form.get("role", "")
 
         if not username or not password or not role_name:
             flash("All fields are required.", "danger")
             return redirect(url_for("users.manage_users"))
 
         if User.query.filter_by(username=username).first():
-            flash("Username already exists.", "warning")
+            flash("Username already exists. Choose another one.", "warning")
             return redirect(url_for("users.manage_users"))
 
         role = Role.query.filter(db.func.lower(Role.name) == role_name.lower()).first()
@@ -64,11 +65,27 @@ def manage_users():
         except Exception as e:
             db.session.rollback()
             logger.exception("Error adding user: %s", e)
-            flash("An error occurred while adding the user.", "danger")
+            flash("An unexpected error occurred while adding the user.", "danger")
 
         return redirect(url_for("users.manage_users"))
 
-    users = User.query.all()
+    # Handle search functionality
+    if search_query:
+        users = (
+            User.query.join(Role)
+            .filter(
+                db.or_(
+                    db.func.lower(User.username).like(f"%{search_query}%"),
+                    db.func.lower(Role.name).like(f"%{search_query}%"),
+                )
+            )
+            .all()
+        )
+        if not users:
+            flash("No users found matching your search.", "info")
+    else:
+        users = User.query.all()
+
     return render_template("users.html", users=users, roles=roles)
 
 
@@ -77,17 +94,18 @@ def manage_users():
 @login_required
 @permission_required("manage_users")
 def edit_user(user_id):
-    """Edit user role or password."""
+    """Edit a user's role or password."""
     user = User.query.get_or_404(user_id)
     roles = Role.query.all()
 
     if request.method == "POST":
-        role_name = request.form.get("role")
-        new_password = request.form.get("password")
+        role_name = request.form.get("role", "").strip()
+        new_password = request.form.get("password", "").strip()
 
         role = Role.query.filter(db.func.lower(Role.name) == role_name.lower()).first()
         if role:
             user.role_id = role.id
+
         if new_password:
             user.set_password(new_password)
 
@@ -110,14 +128,18 @@ def edit_user(user_id):
 @login_required
 @permission_required("manage_users")
 def delete_user(user_id):
-    """Delete a user."""
+    """Delete a user (excluding self)."""
     user = User.query.get_or_404(user_id)
+
+    if current_user.id == user.id:
+        flash("You cannot delete your own account.", "warning")
+        return redirect(url_for("users.manage_users"))
 
     try:
         db.session.delete(user)
         db.session.commit()
         flash(f"User '{user.username}' deleted successfully.", "info")
-        logger.info(f"User '{user.username}' deleted by {current_user.username}")
+        logger.warning(f"User '{user.username}' deleted by {current_user.username}")
     except Exception as e:
         db.session.rollback()
         logger.exception("Error deleting user: %s", e)
@@ -127,7 +149,7 @@ def delete_user(user_id):
 
 
 # ---------------- ADMIN ROLE UPDATE (SECURE) ---------------- #
-@users_bp.route("/users/update_role/<int:user_id>", methods=["POST"])
+@users_bp.route("/update_role/<int:user_id>", methods=["POST"])
 @login_required
 def update_role(user_id):
     """Allow admin to update a user's role securely."""
@@ -184,3 +206,4 @@ def settings():
             return redirect(url_for("users.profile"))
 
     return render_template("settings.html", user=current_user)
+

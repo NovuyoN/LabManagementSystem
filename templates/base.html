@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -131,16 +132,28 @@
     <a href="{{ url_for('dashboard') }}" class="{% if request.endpoint == 'dashboard' %}active{% endif %}">
       <i class="bi bi-speedometer2"></i> Dashboard
     </a>
+
     <a href="{{ url_for('tests.view_tests') }}" class="{% if request.endpoint.startswith('tests') %}active{% endif %}">
       <i class="bi bi-flask"></i> Patient Tests
     </a>
+
+    {% if current_user.is_authenticated and current_user.role.name in ["admin", "lab_manager"] %}
+    <a href="{{ url_for('categories.view_categories') }}" class="{% if request.endpoint.startswith('categories') %}active{% endif %}">
+      <i class="bi bi-list-ul"></i> Test Categories
+    </a>
+    {% endif %}
+
     <a href="{{ url_for('inventory.inventory') }}" class="{% if request.endpoint.startswith('inventory') %}active{% endif %}">
       <i class="bi bi-box-seam"></i> Inventory
     </a>
+
     <a href="{{ url_for('users.manage_users') }}" class="{% if request.endpoint.startswith('users') %}active{% endif %}">
       <i class="bi bi-people"></i> Users
     </a>
-    <a href="#"><i class="bi bi-bar-chart"></i> Reports</a>
+
+    <a href="{{ url_for('reports.overview') }}" class="{% if request.endpoint.startswith('reports') %}active{% endif %}">
+      <i class="bi bi-bar-chart"></i> Reports
+    </a>
   </nav>
 
   <!-- Top Navbar -->

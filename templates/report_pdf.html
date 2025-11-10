@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Lab Management System - Report Summary</title>
+  <style>
+    body {
+      font-family: "Segoe UI", Arial, sans-serif;
+      margin: 40px;
+      color: #333;
+    }
+    h1, h2, h3 {
+      color: #2F4F4F;
+      text-align: center;
+    }
+    h1 {
+      border-bottom: 3px solid #5F9EA0;
+      padding-bottom: 10px;
+      margin-bottom: 30px;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 20px;
+    }
+    th, td {
+      border: 1px solid #ddd;
+      padding: 10px;
+      text-align: center;
+    }
+    th {
+      background-color: #5F9EA0;
+      color: white;
+    }
+    .summary-cards {
+      display: flex;
+      justify-content: space-around;
+      margin-bottom: 40px;
+    }
+    .card {
+      background-color: #f8f9fa;
+      border: 1px solid #ccc;
+      border-radius: 10px;
+      padding: 20px;
+      width: 30%;
+      text-align: center;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    }
+    .card h3 {
+      margin: 10px 0 5px;
+      color: #007B83;
+    }
+    .status-table {
+      margin-top: 30px;
+    }
+    footer {
+      text-align: center;
+      margin-top: 50px;
+      font-size: 0.9rem;
+      color: #666;
+    }
+  </style>
+</head>
+
+<body>
+  <h1>Lab Management System</h1>
+  <h2>Comprehensive Performance Report (Demo)</h2>
+  <p style="text-align:center; font-style:italic;">Generated on {{ now().strftime('%Y-%m-%d') }}</p>
+
+  <!-- Summary Section -->
+  <div class="summary-cards">
+    <div class="card">
+      <h4>Total Users</h4>
+      <h3>24</h3>
+    </div>
+    <div class="card">
+      <h4>Total Tests</h4>
+      <h3>152</h3>
+    </div>
+    <div class="card">
+      <h4>Inventory Items</h4>
+      <h3>89</h3>
+    </div>
+  </div>
+
+  <!-- Test Summary -->
+  <h3>Test Result Distribution</h3>
+  <table class="status-table">
+    <tr>
+      <th>Status</th>
+      <th>Count</th>
+      <th>Percentage</th>
+    </tr>
+    <tr>
+      <td>Pending</td>
+      <td>38</td>
+      <td>25%</td>
+    </tr>
+    <tr>
+      <td>In Progress</td>
+      <td>57</td>
+      <td>37.5%</td>
+    </tr>
+    <tr>
+      <td>Completed</td>
+      <td>57</td>
+      <td>37.5%</td>
+    </tr>
+  </table>
+
+  <!-- Inventory Summary -->
+  <h3>Inventory Overview</h3>
+  <table class="status-table">
+    <tr>
+      <th>Category</th>
+      <th>Count</th>
+      <th>Status</th>
+    </tr>
+    <tr>
+      <td>Reagents</td>
+      <td>40</td>
+      <td>Available</td>
+    </tr>
+    <tr>
+      <td>Equipment</td>
+      <td>25</td>
+      <td>In Use</td>
+    </tr>
+    <tr>
+      <td>Consumables</td>
+      <td>24</td>
+      <td>Low Stock</td>
+    </tr>
+  </table>
+
+  <!-- Signature -->
+  <div style="margin-top: 50px;">
+    <p><strong>Report Prepared By:</strong> System Auto-Report Module</p>
+    <p><strong>Verified By:</strong> Lab Manager / Administrator</p>
+  </div>
+
+  <footer>
+    &copy; 2025 Microcare Lab Management System — All Rights Reserved.
+  </footer>
+</body>
+</html>
